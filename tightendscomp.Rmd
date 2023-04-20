@@ -1,0 +1,55 @@
+---
+title: "Maryland Tight End Comparison"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+downfieldog <- read_csv("receiving_depth.csv")
+```
+
+```{r}
+downfieldbigtenonly <- downfieldog %>% 
+filter(team_name == "MARYLAND"| team_name =="INDIANA"| team_name =="IOWA"| team_name =="NWESTERN"| team_name =="MICHIGAN"| team_name =="MINNESOTA"| team_name =="MICH STATE"| team_name =="PURDUE"| team_name =="OHIO STATE"| team_name =="PENN STATE"| team_name =="RUTGERS"| team_name =="ILLINOIS"| team_name =="WISCONSIN"| team_name =="NEBRASKA") %>% 
+  filter(position == "TE")
+#here i just filtered for each of the 14 Big Ten schools to filter out the other players and just focus on the ones in the conference. I then filtered for tight ends only.
+```
+
+```{r}
+downfieldyards <- downfieldbigtenonly %>% 
+  select(player, team_name, deep_yards) %>%
+  arrange(desc(deep_yards))
+#here i just wanted to see the player and team and how many yards they've caught off deep balls (balls thrown 20+ yards down the field)
+```
+
+```{r}
+downfieldtargets <- downfieldbigtenonly %>% 
+  select(player, team_name, deep_targets) %>% 
+  arrange(desc(deep_targets))
+#did the same thing here but for targets
+```
+
+```{r}
+downfield_yards_targets <- downfieldbigtenonly %>% 
+  select(player, team_name, deep_targets, deep_yards) %>% 
+  arrange(desc(deep_yards))
+#selected targets and yards to see both at the same time, then made a csv file with just those stats and downloaded and put it in datawrapper!
+```
+
+
+```{r}
+write_csv(downfieldyards, "downfieldyards.csv")
+```
+
+```{r}
+write_csv(downfield_yards_targets, "downfield_yards_targets.csv")
+```
+
