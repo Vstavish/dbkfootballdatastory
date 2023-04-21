@@ -56,3 +56,24 @@ mdcorners22 <- coverage22 %>%
 marylandcornercomparison <- bind_rows(mdcorners21, mdcorners22)
 ```
 
+Graph: https://www.datawrapper.de/_/9YtO1/
+```{r}
+coveragescheme22 <- read_csv("defense_coverage_scheme22.csv")
+coveragescheme21 <- read_csv("defense_coverage_scheme21.csv")
+# reading in scheme data
+marylandsecondscheme22 <- coveragescheme22 %>% 
+  filter(position == "CB" | position == "S", team_name == "MARYLAND") %>% 
+  mutate(year = 2022)
+#filtering for Maryland corners/safeties for 2022
+marylandsecondscheme21 <- coveragescheme21 %>% 
+  filter(position == "CB" | position == "S", team_name == "MARYLAND") %>% 
+  mutate(year = 2021)
+#filtering for Maryland corners/safeties for 2021
+MarylandSecondarySchemeCombined <- bind_rows(marylandsecondscheme21, marylandsecondscheme22) %>% 
+  group_by(year) %>% 
+  summarize(total = sum(base_snap_counts_coverage), Man_Snaps = sum(man_snap_counts_coverage)/total * 100, Zone_Snaps = sum(zone_snap_counts_coverage)/total * 100) %>% 
+  mutate(Not_classified = 100 - Man_Snaps - Zone_Snaps)
+#finding percentage of individual snaps that maryland secondary players spent in man and zone coverage in '21 and '22
+write.csv(MarylandSecondarySchemeCombined, "~/Documents/DBK Stats Stuff/MarylandSecondarySchemeCombined.csv") 
+```
+
