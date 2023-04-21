@@ -22,7 +22,7 @@ b10 <- c("NWESTERN", "MARYLAND", "ILLINOIS", "INDIANA", "IOWA", "OHIO STATE", "M
 
 Graph: https://datawrapper.dwcdn.net/pQjxI/1/
 ```{r pressure, echo=FALSE}
-downfieldog <- read_csv("~/Downloads/receiving_depth.csv")
+downfieldog <- read_csv("receiving_depth.csv")
 downfieldbigtenonly <- downfieldog %>% 
     filter(team_name %in% b10) %>% 
     filter(position == "TE")
@@ -32,3 +32,27 @@ downfield_yards_targets <- downfieldbigtenonly %>%
 
 #taking overall numbers for deep targets, filtering for tight ends in the Big Ten, selecting for player, team, deep targets and deep yards, arranging by descending for deep yards.
 ```
+
+Graph: https://www.datawrapper.de/_/7afHS/
+```{r}
+#Loading in coverage data for last two seasons
+coverage22 <- read_csv("defense_coverage_summary22.csv")
+coverage21 <- read_csv("defense_coverage_summary21.csv")
+
+#selected gater, coley jr and bennett because they were the ones who played the majority of outside corner snaps other than the two returning leaders (still and j. bennett)
+#link to find snap data is here: https://premium.pff.com/ncaa/teams/2021/REGPO/maryland-terrapins/defense look at leaders in snaps at CNR username: dbkmarylandfootball@gmail.com pw: DBKSPORTS81
+mdcorners21 <- coverage21 %>% 
+  filter(player == "Lavonte Gater" | player == "Corey Coley Jr." | player == "Kenny Bennett") %>% 
+  group_by(team_name) %>% 
+  summarize(ForcedIncompletions = sum(forced_incompletes), Interceptions = sum(interceptions), PBUs = sum(pass_break_ups), cov_to_catch_perc = sum(receptions)/sum(targets), total_catches = sum(receptions), yards = sum(yards), snaps = sum(snap_counts_coverage), targets = sum(targets)) %>% 
+  mutate(year = 2021)
+# filtered for those three players and found the cumulative stats for them in the aggregate. Yards and total catches here are amounts allowed, yards is used in graph.
+mdcorners22 <- coverage22 %>% 
+  filter(player == "Deonte Banks") %>% 
+  group_by(team_name) %>% 
+  summarize(ForcedIncompletions = sum(forced_incompletes), Interceptions = sum(interceptions), PBUs = sum(pass_break_ups), cov_to_catch_perc = sum(receptions)/sum(targets), total_catches = sum(receptions), yards = sum(yards), snaps = sum(snap_counts_coverage), targets = sum(targets)) %>% 
+    mutate(year = 2022)
+# did the same, but just for Banks
+marylandcornercomparison <- bind_rows(mdcorners21, mdcorners22)
+```
+
