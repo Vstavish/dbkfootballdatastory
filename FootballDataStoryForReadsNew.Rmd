@@ -29,7 +29,7 @@ b10 <- c("NWESTERN", "MARYLAND", "ILLINOIS", "INDIANA", "IOWA", "OHIO STATE", "M
 
 # data ed checked this block
 
-Graph: https://public.flourish.studio/visualisation/13530482/
+Graph: https://public.flourish.studio/visualisation/13530482/ [GET UPDATED SHIT IN HERE ASAP]
 
 # sentences in the story that use this code block below:
 
@@ -39,7 +39,7 @@ Nearly 200 of those yards came from passes thrown at least 20 yards down the fie
 
 # csv is downloaded from site linked below. The link leads you to a filtered version of the data (see the tabs on the top of the page), but when this data is downloaded, it's unfiltered (see the csv). Varun linked to the filtered data relevant to the data points shown in the story.
 
-#https://premium.pff.com/ncaa/positions/2022/REGPO/receiving-depth?division=fbs&position=TE&split=deep&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
+# https://premium.pff.com/ncaa/positions/2022/REGPO/receiving-depth?division=fbs&position=TE&split=deep&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
 
 # username: dbkmarylandfootball@gmail.com pw: DBKSPORTS81
 
@@ -106,7 +106,7 @@ grouper(downfieldog_4corners, "player_id")
 
 # However, this block is still important for fact checking words in the story
 
-Graph: https://public.flourish.studio/visualisation/13527785/
+Graph: https://public.flourish.studio/visualisation/13527785/ [NOT USING]
 
 # sentences in the story that use this code block below:
 
@@ -158,6 +158,36 @@ write.csv(marylandcornercomparison, "~/Documents/DBK Stats Stuff/marylandcornerc
 
 ```{r}
 
+# loading 2021 data frame under new name for clarity
+
+coverage21_4corners <- coverage21 %>%
+  clean_names() %>%
+  as.data.frame()
+  
+
+## lower function
+coverage21_4corners <- lower_df(coverage21_4corners)
+
+
+### ex: grouper(dataframe, "column_name")
+grouper(coverage21_4corners, "player_id")
+
+
+
+# loading 2022 data frame under new name for clarity
+
+coverage22_4corners <- coverage22 %>%
+  clean_names() %>%
+  as.data.frame()
+  
+
+## lower function
+coverage22_4corners <- lower_df(coverage22_4corners)
+
+
+### ex: grouper(dataframe, "column_name")
+grouper(coverage22_4corners, "player_id")
+
 
 
 ```
@@ -166,7 +196,7 @@ write.csv(marylandcornercomparison, "~/Documents/DBK Stats Stuff/marylandcornerc
 
 But Tagovailoa spent almost a third of his snaps under duress and led the Big Ten in sacks taken with 34.
 
-Graph: https://public.flourish.studio/visualisation/13527657/
+Graph: https://public.flourish.studio/visualisation/13527657/ [GET UPDATED SHIT IN HERE ASAP]
 
 ```{r}
 
@@ -190,6 +220,20 @@ write.csv(b10pressure, "~/Documents/DBK Stats Stuff/b10pressure.csv")
 
 ```{r}
 
+# loading data frame under new name for clarity
+
+passing_pressure_4corners <- passing_pressure %>%
+  clean_names() %>%
+  as.data.frame()
+  
+
+## lower function
+passing_pressure_4corners <- lower_df(passing_pressure_4corners)
+
+
+### ex: grouper(dataframe, "column_name")
+grouper(passing_pressure_4corners, "player_id")
+
 
 
 ```
@@ -208,6 +252,25 @@ Tagovailoa averaged 2.99 seconds before throwing the ball in 2022. That mark was
 b10timeinpocket <- read_csv("time_in_pocket.csv") %>% 
     filter(team_name %in% b10) %>% 
     filter(player_game_count >= 10)
+
+```
+# data ed 4 corners check for time_in_pocket.csv
+
+```{r}
+
+# loading data frame under new name for clarity
+
+b10timeinpocket_4corners <- b10timeinpocket %>%
+  clean_names() %>%
+  as.data.frame()
+  
+
+## lower function
+b10timeinpocket_4corners <- lower_df(b10timeinpocket_4corners)
+
+
+### ex: grouper(dataframe, "column_name")
+grouper(b10timeinpocket_4corners, "player_id")
 
 ```
 
@@ -256,17 +319,16 @@ downfield_yards_targets <- downfieldbigtenonly %>%
   select(player, team_name, deep_targets, deep_yards) %>% 
   arrange(desc(deep_yards))
 
-```
-
-```{r}
 write_csv(downfield_yards_targets, "downfield_yards_targets.csv")
 ```
 
-Graph: https://public.flourish.studio/visualisation/13530602/
+Graph: https://public.flourish.studio/visualisation/13530602/ [GET UPDATED SHIT IN HERE ASAP]
 
 # sentence that uses this chunk
 
 One of the main keys to Hemby and Littleton’s success out of the backfield was their ability to break tackles and extend plays through contact. Hemby racked up 525 yards after contact on the year while Littleton averaged nearly four yards after contact per rush for his 77 carries.
+
+# data ed note for this sentence: curious as to why we state total yards for Hemby but then averge yards per carry for Littleton. I feel that when we compare we should be consistent in what we're comparing?
 
 ```{r}
 
@@ -278,15 +340,17 @@ One of the main keys to Hemby and Littleton’s success out of the backfield was
 
 # https://premium.pff.com/ncaa/positions/2021/REGPO/rushing?division=fbs
 
-#here i read in the two data frames (they're the same thing from 2021 to 2022 i just named them two different thingss like a dumbass)
+#here i read in the two data frames (they're the same thing from 2021 to 2022 i just named them two different thingss like a dumbass) 
+
+# data ed note: noah named these weird but they're just the same data but for 2021 (Fleet) vs 2022 (Hemby)
 
 fleet <- read_csv("runningbacks2021.csv")
 hemby <- fread("rushing_summary.csv")
 
-# data ed note: I don;t think it's a huge deal but why are these like...double spaced lol
+# data ed note: I don't think it's a huge deal but why are these csvs like...double spaced lol
  
 ```
-
+# analyses for 2022 -> filter for maryland players, running backs
 ```{r}
 dot2022stats <- hemby %>% 
   filter(team_name == "MARYLAND")
@@ -298,7 +362,9 @@ rb2022stats <- dot2022stats %>%
   filter(position == "HB")
 #filtered again just for HB's (HB is just running back)
 ```
+# data ed changed this up so it's not 1 line per chunk -> select relevant columns, show yards/attempts (aks yards after contact per attempt) and then arrange descending order by yards_after_contact
 
+# this originally filtered by players with more than 10 games played but I took that out for this just to make sure it's not drastically changing the results. It's not. 
 ```{r}
 rbfinalstats2022 <- rb2022stats %>% 
   select(player,team_name, yards_after_contact, attempts, player_game_count) %>%
@@ -307,8 +373,7 @@ rbfinalstats2022 <- rb2022stats %>%
   #filter(player_game_count >= 10)
 #filtered for just players that played in at least 10 games to eliminate the bums that barely played
 ```
-
-
+# analyses for 2021 -> filter for maryland players, running backs
 ```{r}
 dot2021stats <- fleet %>% 
   filter(team_name == "MARYLAND")
@@ -320,7 +385,9 @@ rb2021stats <- dot2021stats %>%
   filter(position == "HB")
 #filtered again just for HB's (HB is just running back)
 ```
+# data ed changed this up so it's not 1 line per chunk -> select relevant columns, show yards/attempts (aks yards after contact per attempt) and then arrange descending order by yards_after_contact
 
+# this originally filtered by players with more than 10 games played but I took that out for this just to make sure it's not drastically changing the results. It's not. 
 ```{r}
 rbfinalstats2021 <- rb2021stats %>% 
   select(player,team_name, yards_after_contact, attempts, player_game_count) %>%
@@ -329,7 +396,7 @@ rbfinalstats2021 <- rb2021stats %>%
   #filter(player_game_count >= 10)
 #filtered for just players that played in at least 10 games to eliminate the bums that barely played
 ```
-
+# combine the two dataframes 
 ```{r}
 rbcombined <- rbind(rbfinalstats2021, rbfinalstats2022)
 #bound the two together to analyze both of the dataframes for 2021 and 2022
@@ -353,7 +420,7 @@ write_csv(rb_last_one, "rb_last_one.csv")
 #wrote it in!
 ```
 
-Graph: https://public.flourish.studio/visualisation/13539027/
+Graph: https://public.flourish.studio/visualisation/13539027/ [GET UPDATED SHIT IN HERE ASAP]
 
 While Maryland didn’t get over the hump against either the Buckeyes or Wolverines this season, the Terps showed sizable improvement when analyzing the box scores for each game. 
 
@@ -364,7 +431,6 @@ Here, I took how much the average margin of victory/defeat for each of: Ohio Sta
 
 ```{r}
 
-
+yeah naw
 
 ```
->>>>>>> Stashed changes
