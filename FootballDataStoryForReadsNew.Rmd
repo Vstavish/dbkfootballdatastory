@@ -15,118 +15,247 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 ```{r cars}
 library(tidyverse)
 library(janitor)
-b10 <- c("NWESTERN", "MARYLAND", "ILLINOIS", "INDIANA", "IOWA", "OHIO STATE", "MICHIGAN", "PURDUE", "MINNESOTA", "MICH STATE", "WISCONSIN", "PENN STATE", "NEBRASKA", "RUTGERS")
+# data ed added below libraries for data checking purposes
+library(leaflet)
+library(data.table)
+library(readxl)
+
 #loading libraries and establishing what teams are in the Big Ten
+
+b10 <- c("NWESTERN", "MARYLAND", "ILLINOIS", "INDIANA", "IOWA", "OHIO STATE", "MICHIGAN", "PURDUE", "MINNESOTA", "MICH STATE", "WISCONSIN", "PENN STATE", "NEBRASKA", "RUTGERS")
+
 ```
 
-Graph: <https://datawrapper.dwcdn.net/pQjxI/1/>
+
+# data ed checked this block
+
+Graph: https://public.flourish.studio/visualisation/13530482/
+
+# sentences in the story that use this code block below:
+
+Nearly 200 of those yards came from passes thrown at least 20 yards down the field, by far the highest mark of any tight end in the Big Ten in 2022. Dyches’ ten deep ball targets were also a conference-high.
 
 ```{r pressure, echo=FALSE}
-downfieldog <- read_csv("receiving_depth.csv") #https://premium.pff.com/ncaa/positions/2022/REGPO/receiving-depth?division=fbs&position=TE&split=deep&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
+
+# csv is downloaded from site linked below. The link leads you to a filtered version of the data (see the tabs on the top of the page), but when this data is downloaded, it's unfiltered (see the csv). Varun linked to the filtered data relevant to the data points shown in the story.
+
+#https://premium.pff.com/ncaa/positions/2022/REGPO/receiving-depth?division=fbs&position=TE&split=deep&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
+
+# username: dbkmarylandfootball@gmail.com pw: DBKSPORTS81
+
+#taking overall numbers for deep targets, filtering for tight ends in the Big Ten, selecting for player, team, deep targets and deep yards, arranging by descending for deep yards.
+
+downfieldog <- read_csv("receiving_depth.csv") 
 downfieldbigtenonly <- downfieldog %>% 
     filter(team_name %in% b10) %>% 
     filter(position == "TE")
+
 downfield_yards_targets <- downfieldbigtenonly %>% 
   select(player, team_name, deep_targets, deep_yards) %>% 
   arrange(desc(deep_yards))
-#taking overall numbers for deep targets, filtering for tight ends in the Big Ten, selecting for player, team, deep targets and deep yards, arranging by descending for deep yards.
+
 ```
 
-Graph: <https://public.flourish.studio/visualisation/13527785/>
-
-They played 399 coverage snaps in 2021 compared to Banks' 384 in 2022. The latter's were much more impressive. The three corners in 2021 allowed catches on 57.7 percent of targets, a mark dramatically higher than Banks'.
-
-The three combined to give up 418 yards, break up four passes and only force six incompletions. Banks, meanwhile, gave up just 258 yards, broke up eight passes and forced 13 incompletions.
+# data ed 4 corners check for recieving_depth.csv
 
 ```{r}
-#Loading in coverage data for last two seasons
-coverage22 <- read_csv("defense_coverage_summary22.csv") #https://premium.pff.com/ncaa/positions/2022/REGPO/defense-coverage?division=fbs&position=CB&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
-coverage21 <- read_csv("defense_coverage_summary21.csv") #
+# loading data frame under new name for clarity
+
+downfieldog_4corners <- downfieldog %>%
+  clean_names() %>%
+  as.data.frame()
+  
+  # creating a function that lowers case of every character column in a dataframe
+lower_df <- function(input_df){
+  names <- colnames(input_df)
+  output_df <- input_df
+  names <- colnames(output_df)
+  for (name in names){
+    if (is.character(output_df[[name]])){
+      output_df[[name]] <- tolower(output_df[[name]])
+      #print('yes')
+    } else {
+      output_df[[name]] <- output_df[[name]]
+      #print('no')
+    }
+  }
+  return(output_df)
+}
+
+## now when we call the function and pass our dataframe through it, everything is lowercase.
+downfieldog_4corners <- lower_df(downfieldog_4corners)
+
+### define grouper function
+grouper <- function(input_df, group_by_column, new_column_name = "n()"){
+  output_df <- input_df %>%
+    group_by(.data[[group_by_column]]) %>%
+    summarise(temp_count = n()) %>%
+    mutate(percent = temp_count/sum(temp_count)*100) %>%
+    arrange(desc(percent)) %>%
+    rename(!!new_column_name := temp_count)
+  return(output_df)
+}
+### to use this function, we pass in two arguments -- the dataframe name and the column we want to group_by() - use this for any/every column to make sure there aren't weird holes or suprising numbers of repeats or NAs
+
+### ex: grouper(dataframe, "column_name")
+grouper(downfieldog_4corners, "player_id")
+
+```
+
+# data ed does not think it's a good idea to compare the sums of 3 other 2021 players and 1 2022 player. I understand Deonte Banks just plays more than the other 3 so a player to player comparison is also tough, which I think is reason enough to drop this visual comparison completely. It just doesn't hold up. 
+
+# However, this block is still important for fact checking words in the story
+
+Graph: https://public.flourish.studio/visualisation/13527785/
+
+# sentences in the story that use this code block below:
+
+They played 410 coverage snaps in 2021 compared to Banks' 384 in 2022. The latter's were much more impressive. The three corners in 2021 allowed catches on 57.4 percent of targets, a mark dramatically higher than Banks'.
+
+The three combined to give up 420 yards, break up four passes and only force six incompletions. Banks, meanwhile, gave up just 258 yards, broke up eight passes and forced 13 incompletions.
+
+```{r}
+# 2022 csv came from link below
+
+# https://premium.pff.com/ncaa/positions/2022/REGPO/defense-coverage?division=fbs&position=CB&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
+
+# 2022 coverage data 
+coverage22 <- read_csv("defense_coverage_summary22.csv") 
+
+# 2021 csv came from link below
+
+# https://premium.pff.com/ncaa/teams/2021/REGPO/maryland-terrapins/defense
+
+# 2021 coverage data 
+coverage21 <- read_csv("defense_coverage_summary21.csv")
 
 #selected gater, coley jr and bennett because they were the ones who played the majority of outside corner snaps other than the two returning leaders (still and j. bennett)
-#link to find snap data is here: https://premium.pff.com/ncaa/teams/2021/REGPO/maryland-terrapins/defense look at leaders in snaps at CNR username: dbkmarylandfootball@gmail.com pw: DBKSPORTS81
+
+# filtered for those three players and found the cumulative stats for them in the aggregate. Yards and total catches here are amounts allowed, yards is used in graph.
+
 mdcorners21 <- coverage21 %>% 
   filter(player == "Lavonte Gater" | player == "Corey Coley Jr." | player == "Kenny Bennett") %>% 
   group_by(team_name) %>% 
   summarize(ForcedIncompletions = sum(forced_incompletes), Interceptions = sum(interceptions), PBUs = sum(pass_break_ups), cov_to_catch_perc = sum(receptions)/sum(targets), total_catches = sum(receptions), yards = sum(yards), snaps = sum(snap_counts_coverage), targets = sum(targets)) %>% 
   mutate(year = 2021)
-# filtered for those three players and found the cumulative stats for them in the aggregate. Yards and total catches here are amounts allowed, yards is used in graph.
+
+# did the same, but just for Banks
+
 mdcorners22 <- coverage22 %>% 
   filter(player == "Deonte Banks") %>% 
   group_by(team_name) %>% 
   summarize(ForcedIncompletions = sum(forced_incompletes), Interceptions = sum(interceptions), PBUs = sum(pass_break_ups), cov_to_catch_perc = sum(receptions)/sum(targets), total_catches = sum(receptions), yards = sum(yards), snaps = sum(snap_counts_coverage), targets = sum(targets)) %>% 
     mutate(year = 2022)
-# did the same, but just for Banks
+
+# putting these analyses into a csv for graphics
+
 marylandcornercomparison <- bind_rows(mdcorners21, mdcorners22)
 
 write.csv(marylandcornercomparison, "~/Documents/DBK Stats Stuff/marylandcornercomparison.csv") 
 ```
 
-But Tagovailoa spent almost a third of his snaps under duress and led the Big Ten in sacks taken with 34. Graph: <https://public.flourish.studio/visualisation/13527657/>
+# data ed 4 corners check for defense_coverage_summary21.csv defense_coverage_summary22.csv
 
 ```{r}
-passing_pressure <- read_csv("passing_pressure.csv") #https://premium.pff.com/ncaa/positions/2022/REGPO/passing-pressure?division=fbs&position=QB&split=pressure&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
+
+
+
+```
+
+# sentences in the story that use this code block below:
+
+But Tagovailoa spent almost a third of his snaps under duress and led the Big Ten in sacks taken with 34.
+
+Graph: https://public.flourish.studio/visualisation/13527657/
+
+```{r}
+
+# passing_pressure csv came from link below
+
+# https://premium.pff.com/ncaa/positions/2022/REGPO/passing-pressure?division=fbs&position=QB&split=pressure&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
+
+passing_pressure <- read_csv("passing_pressure.csv") 
+
+# filtering for big ten qbs with over 10 games played
+
 b10pressure <- passing_pressure %>% 
     filter(team_name %in% b10) %>% 
-    select(player, team_name, base_dropbacks, pressure_dropbacks_percent, pressure_dropbacks) %>% 
+    select(player, team_name, position, base_dropbacks, pressure_dropbacks_percent, pressure_dropbacks) %>% 
     head(10)
+
 write.csv(b10pressure, "~/Documents/DBK Stats Stuff/b10pressure.csv") 
 ```
+
+# data ed 4 corners check for passing_pressure.csv
+
+```{r}
+
+
+
+```
+
+# sentences in the story that use this code block below:
 
 Tagovailoa averaged 2.99 seconds before throwing the ball in 2022. That mark was the highest among Big Ten quarterbacks with at least ten starts
 
 ```{r}
-b10timeinpocket <- read_csv("time_in_pocket.csv") %>% # https://premium.pff.com/ncaa/positions/2022/REGPO/time-in-pocket?division=fbs&position=QB&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
+# time_in_pocket csv came from link below
+
+# https://premium.pff.com/ncaa/positions/2022/REGPO/time-in-pocket?division=fbs&position=QB&team=187,190,192,215,222,223,225,238,256,260,266,273,278,349
+
+# filtering for big ten qbs with over ten games played
+
+b10timeinpocket <- read_csv("time_in_pocket.csv") %>% 
     filter(team_name %in% b10) %>% 
     filter(player_game_count >= 10)
-# filtering for big ten qbs with over ten games played
-```
----
-title: "football_data_ferguson"
-author: "Noah Ferguson"
-date: "2023-04-24"
-output: html_document
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 ```
+
+# THIS IS WHERE NOAH'S SECTION STARTS
+
+```{r}
+
+```
+
+# IGNORE THIS CHUNK. This analysis is a repeat from before.
+
+sentences in the story that use this code block below:
+
+Nearly 200 of those yards came from passes thrown at least 20 yards down the field, by far the highest mark of any tight end in the Big Ten in 2022. Dyches’ ten deep ball targets were also a conference-high.
 
 Graph: https://public.flourish.studio/visualisation/13530482/
 
-Nearly 200 of those yards came from passes thrown at least 20 yards down the field, by far the highest mark of any tight end in the Big Ten in 2022. Dyches’ ten  deep ball targets were also a conference-high.
-
 ```{r}
+# time_in_pocket csv came from link below
+
+# https://premium.pff.com/ncaa/positions/2022/REGPO/receiving-depth?division=fbs&position=WR,TE,RB&split=deep
+
 downfieldog <- read_csv("receiving_depth.csv")
-#read in the receiving data for all receivers: https://premium.pff.com/ncaa/positions/2022/REGPO/receiving-depth?division=fbs&position=WR,TE,RB&split=deep
-```
 
-```{r}
+#here i just filtered for each of the 14 Big Ten schools to filter out the other players and just focus on the ones in the conference. I then filtered for tight ends only.
+
 downfieldbigtenonly <- downfieldog %>% 
 filter(team_name == "MARYLAND"| team_name =="INDIANA"| team_name =="IOWA"| team_name =="NWESTERN"| team_name =="MICHIGAN"| team_name =="MINNESOTA"| team_name =="MICH STATE"| team_name =="PURDUE"| team_name =="OHIO STATE"| team_name =="PENN STATE"| team_name =="RUTGERS"| team_name =="ILLINOIS"| team_name =="WISCONSIN"| team_name =="NEBRASKA") %>% 
   filter(position == "TE")
-#here i just filtered for each of the 14 Big Ten schools to filter out the other players and just focus on the ones in the conference. I then filtered for tight ends only.
-```
 
-```{r}
+#here i just wanted to see the player and team and how many yards they've caught off deep balls (balls thrown 20+ yards down the field)
+
 downfieldyards <- downfieldbigtenonly %>% 
   select(player, team_name, deep_yards) %>%
   arrange(desc(deep_yards))
-#here i just wanted to see the player and team and how many yards they've caught off deep balls (balls thrown 20+ yards down the field)
-```
 
-```{r}
+#did the same thing here but for targets
+
 downfieldtargets <- downfieldbigtenonly %>% 
   select(player, team_name, deep_targets) %>% 
   arrange(desc(deep_targets))
-#did the same thing here but for targets
-```
 
-```{r}
+#selected targets and yards to see both at the same time, then made a csv file with just those stats and downloaded and put it in flourish!
+
 downfield_yards_targets <- downfieldbigtenonly %>% 
   select(player, team_name, deep_targets, deep_yards) %>% 
   arrange(desc(deep_yards))
-#selected targets and yards to see both at the same time, then made a csv file with just those stats and downloaded and put it in flourish!
+
 ```
 
 ```{r}
@@ -135,14 +264,27 @@ write_csv(downfield_yards_targets, "downfield_yards_targets.csv")
 
 Graph: https://public.flourish.studio/visualisation/13530602/
 
+# sentence that uses this chunk
+
 One of the main keys to Hemby and Littleton’s success out of the backfield was their ability to break tackles and extend plays through contact. Hemby racked up 525 yards after contact on the year while Littleton averaged nearly four yards after contact per rush for his 77 carries.
 
 ```{r}
-fleet <- read_csv("runningbacks2021.csv")
-hemby <- read_csv("rushing_summary.csv")
+
+#here is where I found the 2022 data:
+
+# https://premium.pff.com/ncaa/positions/2022/REGPO/rushing?division=fbs
+
+#here is where I found the 2021 data:
+
+# https://premium.pff.com/ncaa/positions/2021/REGPO/rushing?division=fbs
+
 #here i read in the two data frames (they're the same thing from 2021 to 2022 i just named them two different thingss like a dumbass)
-#here is where I found the 2022 data: https://premium.pff.com/ncaa/positions/2022/REGPO/rushing?division=fbs
-#here is where I found the 2021 data: https://premium.pff.com/ncaa/positions/2021/REGPO/rushing?division=fbs 
+
+fleet <- read_csv("runningbacks2021.csv")
+hemby <- fread("rushing_summary.csv")
+
+# data ed note: I don;t think it's a huge deal but why are these like...double spaced lol
+ 
 ```
 
 ```{r}
@@ -159,8 +301,11 @@ rb2022stats <- dot2022stats %>%
 
 ```{r}
 rbfinalstats2022 <- rb2022stats %>% 
-  filter(player_game_count == "11" | player_game_count == "12" | player_game_count == "13")
-#filtered for just players that played in at least 11 games to eliminate the bums that barely played
+  select(player,team_name, yards_after_contact, attempts, player_game_count) %>%
+  mutate(yac_carry = yards_after_contact / attempts) %>%
+  arrange(desc(yards_after_contact))
+  #filter(player_game_count >= 10)
+#filtered for just players that played in at least 10 games to eliminate the bums that barely played
 ```
 
 
@@ -178,8 +323,11 @@ rb2021stats <- dot2021stats %>%
 
 ```{r}
 rbfinalstats2021 <- rb2021stats %>% 
-  filter(player_game_count == "11" | player_game_count == "12" )
-#filtered for just players that played in at least 11 games to eliminate the bums that barely played
+  select(player,team_name, yards_after_contact, attempts, player_game_count) %>%
+  mutate(yac_carry = yards_after_contact / attempts) %>%
+  arrange(desc(yards_after_contact))
+  #filter(player_game_count >= 10)
+#filtered for just players that played in at least 10 games to eliminate the bums that barely played
 ```
 
 ```{r}
@@ -189,7 +337,7 @@ rbcombined <- rbind(rbfinalstats2021, rbfinalstats2022)
 
 ```{r}
 rb_yards_after_contact <- rbcombined %>% 
-select(player,team_name, yards_after_contact, attempts) %>%
+select(player,team_name, yards_after_contact, attempts, player_game_count) %>%
   arrange(desc(yards_after_contact))
 #selected just the stats I wanted (yards after contact and attempts specifically)
 ```
@@ -210,3 +358,13 @@ Graph: https://public.flourish.studio/visualisation/13539027/
 While Maryland didn’t get over the hump against either the Buckeyes or Wolverines this season, the Terps showed sizable improvement when analyzing the box scores for each game. 
 
 Here, I took how much the average margin of victory/defeat for each of: Ohio State, Penn State, Michigan and Michigan State from 2014-2021 and put it next to the 2022 average margin. All of the box scores can be found here: https://docs.google.com/spreadsheets/d/1n7QIXsMtkmARjHliLg1RcPNn9-CpEu-W2JO774cO6LM/edit?usp=sharing
+=======
+
+# data ed 4 corners check
+
+```{r}
+
+
+
+```
+>>>>>>> Stashed changes
