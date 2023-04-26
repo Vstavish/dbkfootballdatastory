@@ -5,6 +5,7 @@ date: "2023-04-21"
 ---
 
 ```{r setup, include=FALSE}
+install.packages("knitr")
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -13,6 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
 ```{r cars}
+install.packages("tidyverse")
+install.packages("janitor")
+install.packages("data.table")
+install.packages("leaflet")
+install.packages("readxl")
 library(tidyverse)
 library(janitor)
 # data ed added below libraries for data checking purposes
@@ -45,6 +51,9 @@ Nearly 200 of those yards came from passes thrown at least 20 yards down the fie
 
 #taking overall numbers for deep targets, filtering for tight ends in the Big Ten, selecting for player, team, deep targets and deep yards, arranging by descending for deep yards.
 
+# hic = deep target = situation, you have the ball thrown to you. how many times does corey boy get the ball thrown to him when its thrown more than 20 yards (he is the intended target)
+# deep yards = on the opportunities, what happens when he catches it from 20 yards away and does something with it
+
 downfieldog <- read_csv("receiving_depth.csv") 
 downfieldbigtenonly <- downfieldog %>% 
     filter(team_name %in% b10) %>% 
@@ -53,6 +62,8 @@ downfieldbigtenonly <- downfieldog %>%
 downfield_yards_targets <- downfieldbigtenonly %>% 
   select(player, team_name, deep_targets, deep_yards) %>% 
   arrange(desc(deep_yards))
+
+downfield_yards_targets
 
 ```
 
@@ -104,6 +115,8 @@ grouper(downfieldog_4corners, "player_id")
 
 # data ed does not think it's a good idea to compare the sums of 3 other 2021 players and 1 2022 player. I understand Deonte Banks just plays more than the other 3 so a player to player comparison is also tough, which I think is reason enough to drop this visual comparison completely. It just doesn't hold up. 
 
+# hannah agrees we should not use ketchup mustard graphic. 
+
 # However, this block is still important for fact checking words in the story
 
 Graph: https://public.flourish.studio/visualisation/13527785/ [NOT USING]
@@ -136,8 +149,10 @@ coverage21 <- read_csv("defense_coverage_summary21.csv")
 mdcorners21 <- coverage21 %>% 
   filter(player == "Lavonte Gater" | player == "Corey Coley Jr." | player == "Kenny Bennett") %>% 
   group_by(team_name) %>% 
-  summarize(ForcedIncompletions = sum(forced_incompletes), Interceptions = sum(interceptions), PBUs = sum(pass_break_ups), cov_to_catch_perc = sum(receptions)/sum(targets), total_catches = sum(receptions), yards = sum(yards), snaps = sum(snap_counts_coverage), targets = sum(targets)) %>% 
+  summarize(ForcedIncompletions = sum(forced_incompletes), Interceptions = sum(interceptions), PBUs = sum(pass_break_ups), cov_to_catch_perc = sum(receptions)/sum(targets), total_catches = sum(receptions), yards = sum(yards), coverage_snaps = sum(snap_counts_coverage), targets = sum(targets)) %>% 
   mutate(year = 2021)
+
+mdcorners21
 
 # did the same, but just for Banks
 
@@ -152,6 +167,8 @@ mdcorners22 <- coverage22 %>%
 marylandcornercomparison <- bind_rows(mdcorners21, mdcorners22)
 
 write.csv(marylandcornercomparison, "~/Documents/DBK Stats Stuff/marylandcornercomparison.csv") 
+
+mdcorners22
 ```
 
 # data ed 4 corners check for defense_coverage_summary21.csv defense_coverage_summary22.csv
@@ -212,6 +229,10 @@ b10pressure <- passing_pressure %>%
     filter(team_name %in% b10) %>% 
     select(player, team_name, position, base_dropbacks, pressure_dropbacks_percent, pressure_dropbacks) %>% 
     head(10)
+
+# checking the top 10 graph
+b10pressure %>%
+  select(pressure_dropbacks, player)
 
 write.csv(b10pressure, "~/Documents/DBK Stats Stuff/b10pressure.csv") 
 ```
@@ -329,6 +350,7 @@ Graph: https://public.flourish.studio/visualisation/13530602/ [GET UPDATED SHIT 
 One of the main keys to Hemby and Littleton’s success out of the backfield was their ability to break tackles and extend plays through contact. Hemby racked up 525 yards after contact on the year while Littleton averaged nearly four yards after contact per rush for his 77 carries.
 
 # data ed note for this sentence: curious as to why we state total yards for Hemby but then averge yards per carry for Littleton. I feel that when we compare we should be consistent in what we're comparing?
+# resolving data ed comment from HIC: we're swapping the second sentence up top in favor of "Hemby racked up 525 yards after contact on the year in 187 carries while Littleton racked up 303 in just 77" so we have the same information for each player to compare them fairly.
 
 ```{r}
 
@@ -350,10 +372,15 @@ hemby <- fread("rushing_summary.csv")
 # data ed note: I don't think it's a huge deal but why are these csvs like...double spaced lol
  
 ```
+## Sentence getting checked:
+Both Hemby and Littleton, who are both expected to return for their sophomore seasons and the pair, averaged more yards after contact per attempt than Fleet-Davis did in 2021.
+
 # analyses for 2022 -> filter for maryland players, running backs
 ```{r}
 dot2022stats <- hemby %>% 
   filter(team_name == "MARYLAND")
+
+dot2022stats
 #filtered for just maryland  players in 2022
 ```
 
@@ -369,8 +396,10 @@ rb2022stats <- dot2022stats %>%
 rbfinalstats2022 <- rb2022stats %>% 
   select(player,team_name, yards_after_contact, attempts, player_game_count) %>%
   mutate(yac_carry = yards_after_contact / attempts) %>%
-  arrange(desc(yards_after_contact))
-  #filter(player_game_count >= 10)
+  arrange(desc(yards_after_contact)) %>%
+  filter(player_game_count >= 10)
+
+rbfinalstats2022
 #filtered for just players that played in at least 10 games to eliminate the bums that barely played
 ```
 # analyses for 2021 -> filter for maryland players, running backs
@@ -413,6 +442,8 @@ select(player,team_name, yards_after_contact, attempts, player_game_count) %>%
 rb_last_one <- rb_yards_after_contact %>% 
   mutate(yac_carry = yards_after_contact / attempts)
 #added a new column to find out how many yards per carry each running back got on yards after contact
+
+rb_last_one
 ```
 
 ```{r}
